@@ -8,47 +8,97 @@
 
 using namespace std;
 
-class Figura{
-    public :
+class Figura
+{
+public :
     int x,y,b,k=WHITE;
-    Figura(){
+    Figura()
+    {
         b=(rand()%50)+25;
         x=(rand()%(640-2*b))+b;
         y=(rand()%(480-2*b))+b;
     };
-    void crobs(){
-        cout << x << " | " << y << " | " << b << " | " << k << endl;
+    void givedata()
+    {
+        cout <<x<<" -x |"<<y<<"-y |"<<b<<"-b |"<<k<<"-k"<<endl;
     };
     virtual void rysuj()=0;
-    void setcol(){setcolor(k);rysuj();};
+    void setcol()
+    {
+        setcolor(k);
+        rysuj();
+    };
 };
 
-class kolo      : public Figura{
-    public :
-    void rysuj(){circle(x,y,b/2);};
+class kolo      : public Figura
+{
+public :
+    void rysuj()
+    {
+        circle(x,y,b/2);
+    };
 };
-class kwadrat   : public Figura{
-    public :
-    void rysuj(){rectangle(x,y,x+b,y+b);};
+class kwadrat   : public Figura
+{
+public :
+    void rysuj()
+    {
+        rectangle(x,y,x+b,y+b);
+    };
 };
-class elipse    : public Figura{
-    public :
-    void rysuj(){ellipse(x,y,0,360,x%(b/2),y%(b/2));};
+class elipse    : public Figura
+{
+public :
+    void rysuj()
+    {
+        ellipse(x,y,0,360,x%(b/2),y%(b/2));
+    };
 };
 
+class TabFigur
+{
+public :
+    std::vector<Figura*> figi;
+    int indclr=-2;
+    void rysall()
+    {
+        for(auto olo : figi)
+        {
 
-class TabFigur{
-    public :
-        std::vector<Figura*> figi;
-    void rysall(){
-        for(auto olo : figi){
-            olo->rysuj();
+            olo->setcol();
         }
     }
-    void addfig(){
-        int wb;
+    void setthat(int dod,int mod,int *ponlo)
+    {
+        cout << "rand - 0 manual -1" << endl;
+        int wb=-1;
         cin >> wb;
-        switch(wb){
+        if(wb==1)
+        {
+            int co=-1;
+            cout << "max-" << dod+mod-1<< "min-" << dod << endl;
+            cin >> co;
+            if(co>=dod&&co<=dod+mod-1)
+            {
+                setcolor(BLACK);
+                figi.at(indclr)->rysuj();
+                *ponlo=co;
+                figi.at(indclr)->setcol();
+            }
+        }
+        else if(wb==0)
+        {
+            setcolor(BLACK);
+            figi.at(indclr)->rysuj();
+            *ponlo=rand()%mod+dod;
+            figi.at(indclr)->setcol();
+        }
+    };
+
+    void addfig(int wb)
+    {
+        switch(wb)
+        {
         case 1:
             figi.push_back(new kwadrat);
             break;
@@ -58,58 +108,381 @@ class TabFigur{
         case 3:
             figi.push_back(new kolo);
             break;
-        default:
-            return;};
+        case 4:
+            int r =rand()%4+1;
+            addfig(r);
+
+        }
         figi.back()->rysuj();
     };
-    void pokaz(){}
-    void edycja(){
-        if(figi.size()==0){cout << "brak elementow do edycji" << endl;return;}
-        int wb=-2,indclr=-2;
-        do{
-        cin >> wb;
-        switch(wb){
-        case 1: //usun
-            do{
-            if(figi.size()==0){cout << "brak elementow do edycji" << endl;return;}
-            cout << "Daj indeks(wyjdz -1) !!!  od:0 do max:" << figi.size()-1 << endl;
-            cin >> indclr;
-            if(indclr==-1){break;}
-            setcolor(WHITE);
-            rysall();
-            setcolor(RED);figi.at(indclr)->rysuj();
-            cout << "potwierdz=y kolejny indeks(do gory=w,w dol=s)" << endl ;
-            char potwrd;
-            do{
-            cin >> potwrd;
-            if(potwrd=='y'){
-                setcolor(BLACK);
-                figi.at(indclr)->rysuj();
-                figi.erase(figi.begin()+indclr);
-                rysall();}
-            else if(potwrd=='w'){
-                    figi.at(indclr)->setcol();
-                    indclr++;
-                    if(indclr==figi.size()){indclr=0;};
-                    setcolor(RED);figi.at(indclr)->rysuj();}
-            else if(potwrd=='s'){figi.at(indclr)->rysuj();indclr--;if(indclr==-1){indclr=figi.size()-1;};setcolor(RED);figi.at(indclr)->rysuj();}
-            else{cout<< "takij ni ma" << endl;figi.at(indclr)->rysuj();}
-            }while(potwrd!='y');
-            for(auto olo : figi){olo->setcol();}
-            }while(1);
-            break;
-        case 2: //przesun
-            break;
-        case 3: //skaluj
-            break;
-        case 4: //kolor
-            break;
-        default:
-            break;
+    void pokaz()
+    {
+        for(auto olo : figi)
+        {
+            olo->givedata();
         }
-        }while(wb!=0);
     };
+    void edycja()
+    {
+        if(figi.size()==0)
+        {
+            cout << "brak elementow do edycji" << endl;
+            return;
+        }
+        int wb=-2;
+        char potwrd;
+        char litr='a';
+
+        do
+        {
+            cout << "0 wyjdz\n1 usun\n2 translacja\n3 rozmiar\n4 kolo\n5 pokaz wszystko w vBecktorze" << endl;
+            pokaz();
+            cin >> wb;
+            switch(wb)
+            {
+            case 1: //usun
+                do
+                {
+                    if(figi.size()==0)
+                    {
+                        cout << "brak elementow do edycji" << endl;
+                        return;
+                    }
+                    setcolor(WHITE);
+                    rysall();
+                    if(figi.size()!=1)
+                    {
+                        cout << "Daj indeks(wyjdz -1) !!!  od:0 do max:" << figi.size()-1 << endl;
+                        cin >> indclr;
+                        setcolor(RED);
+                        figi.at(indclr)->rysuj();
+                    }
+                    else
+                    {
+                        indclr=0;
+                    }
+                    if(indclr==-1)
+                    {
+                        break;
+                    }
+
+
+                    cout << "potwierdz=y kolejny indeks(do gory=w,w dol=s,wyjdz=q)" << endl ;
+                    do
+                    {
+                        cin >> potwrd;
+                        if(potwrd=='y')
+                        {
+                            setcolor(BLACK);
+                            figi.at(indclr)->rysuj();
+                            figi.erase(figi.begin()+indclr);
+                            rysall();
+                        }
+                        else if(potwrd=='w')
+                        {
+                            figi.at(indclr)->setcol();
+                            indclr++;
+                            if(indclr==figi.size())
+                            {
+                                indclr=0;
+                            };
+                            setcolor(RED);
+                            figi.at(indclr)->rysuj();
+                            setcolor(WHITE);
+                        }
+                        else if(potwrd=='s')
+                        {
+                            figi.at(indclr)->rysuj();
+                            indclr--;
+                            if(indclr==-1)
+                            {
+                                indclr=figi.size()-1;
+                            };
+                            setcolor(RED);
+                            figi.at(indclr)->rysuj();
+                            setcolor(WHITE);
+                        }
+                        else if(potwrd=='q')
+                        {
+                            rysall();
+                            break;
+                        }
+                        else
+                        {
+                            cout<< "takij ni ma" << endl;
+                            figi.at(indclr)->rysuj();
+                        }
+
+                    }
+                    while(potwrd!='y');
+                    for(auto ol : figi)
+                    {
+                        ol->setcol();
+                    }
+                }
+                while(1);
+                break;
+            case 2: //przesun
+                setcolor(WHITE);
+                rysall();
+                if(figi.size()!=1)
+                {
+                    cout << "Daj indeks(wyjdz -1) !!!  od:0 do max:" << figi.size()-1 << endl;
+                    cin >> indclr;
+                    setcolor(RED);
+                    figi.at(indclr)->rysuj();
+                }
+                else
+                {
+                    indclr=0;
+                }
+                if(indclr==-1)
+                {
+                    break;
+                }
+                if(figi.size()==1)
+                {
+                    do
+                    {
+                        cout << "x czy y (q wraca)"<<endl;
+                        cin>>litr;
+                        if(litr=='x')
+                        {
+                            setthat(figi.at(indclr)->b,640-2*figi.at(indclr)->b,&figi.at(indclr)->x);
+
+                        }
+                        else if(litr=='y')
+                        {
+                            setthat(figi.at(indclr)->b,480-2*figi.at(indclr)->b,&figi.at(indclr)->y);
+                        }
+                        else
+                        {
+                            cout <<"tylko x y q"<<endl;
+                        }
+                    }
+                    while(litr!='q');
+                    break;
+                }
+                cout << "potwierdz=y kolejny indeks(do gory=w,w dol=s,wyjdz=q)" << endl ;
+                do
+                {
+                    cin >> potwrd;
+                    if(potwrd=='y')
+                        do
+                        {
+                            cout << "x czy y (q wraca)"<<endl;
+                            cin>>litr;
+                            if(litr=='x')
+                            {
+                                setthat(figi.at(indclr)->b,640-2*figi.at(indclr)->b,&figi.at(indclr)->x);
+
+                            }
+                            else if(litr=='y')
+                            {
+                                setthat(figi.at(indclr)->b,480-2*figi.at(indclr)->b,&figi.at(indclr)->y);
+                            }
+                            else
+                            {
+                                cout <<"tylko x y q"<<endl;
+                            }
+                        }
+                        while(litr!='q');
+
+                    else if(potwrd=='w')
+                    {
+                        figi.at(indclr)->setcol();
+                        indclr++;
+                        if(indclr==figi.size())
+                        {
+                            indclr=0;
+                        };
+                        setcolor(RED);
+                        figi.at(indclr)->rysuj();
+                        setcolor(WHITE);
+                    }
+                    else if(potwrd=='s')
+                    {
+                        figi.at(indclr)->rysuj();
+                        indclr--;
+                        if(indclr==-1)
+                        {
+                            indclr=figi.size()-1;
+                        };
+                        setcolor(RED);
+                        figi.at(indclr)->rysuj();
+                        setcolor(WHITE);
+                    }
+                    else if(potwrd=='q')
+                    {
+                        rysall();
+                        break;
+                    }
+                    else
+                    {
+                        cout<< "takij ni ma" << endl;
+                        figi.at(indclr)->rysuj();
+                    }
+
+                }
+                while(potwrd!='y');
+
+
+                break;
+            case 3: //skaluj
+                setcolor(WHITE);
+                rysall();
+                if(figi.size()!=1)
+                {
+                    cout << "Daj indeks(wyjdz -1) !!!  od:0 do max:" << figi.size()-1 << endl;
+                    cin >> indclr;
+                    setcolor(RED);
+                    figi.at(indclr)->rysuj();
+                }
+                else
+                {
+                    indclr=0;
+                }
+                if(indclr==-1)
+                {
+                    break;
+                }
+                if(figi.size()==1)
+                {
+                    setthat(25,50,&figi.at(indclr)->b);
+                    break;
+                }
+                cout << "potwierdz=y kolejny indeks(do gory=w,w dol=s,wyjdz=q)" << endl ;
+                do
+                {
+                    cin >> potwrd;
+                    if(potwrd=='y')
+
+                        setthat(25,50,&figi.at(indclr)->b);
+
+                    else if(potwrd=='w')
+                    {
+                        figi.at(indclr)->setcol();
+                        indclr++;
+                        if(indclr==figi.size())
+                        {
+                            indclr=0;
+                        };
+                        setcolor(RED);
+                        figi.at(indclr)->rysuj();
+                        setcolor(WHITE);
+                    }
+                    else if(potwrd=='s')
+                    {
+                        figi.at(indclr)->rysuj();
+                        indclr--;
+                        if(indclr==-1)
+                        {
+                            indclr=figi.size()-1;
+                        };
+                        setcolor(RED);
+                        figi.at(indclr)->rysuj();
+                        setcolor(WHITE);
+                    }
+                    else if(potwrd=='q')
+                    {
+                        rysall();
+                        break;
+                    }
+                    else
+                    {
+                        cout<< "takij ni ma" << endl;
+                        figi.at(indclr)->rysuj();
+                    }
+
+                }
+                while(potwrd!='y');
+
+
+
+                break;
+            case 4: //kolor
+                setcolor(WHITE);
+                rysall();
+                if(figi.size()!=1)
+                {
+                    cout << "Daj indeks(wyjdz -1) !!!  od:0 do max:" << figi.size()-1 << endl;
+                    cin >> indclr;
+                    setcolor(RED);
+                    figi.at(indclr)->rysuj();
+                }
+                else
+                {
+                    indclr=0;
+                }
+                if(indclr==-1)
+                {
+                    break;
+                }
+
+
+                if(figi.size()==1)
+                {
+                    setthat(0,16,&figi.at(indclr)->k);
+                    break;
+                }
+                cout << "potwierdz=y kolejny indeks(do gory=w,w dol=s,wyjdz=q)" << endl ;
+                do
+                {
+                    cin >> potwrd;
+                    if(potwrd=='y')
+
+                        setthat(0,16,&figi.at(indclr)->k);
+
+                    else if(potwrd=='w')
+                    {
+                        figi.at(indclr)->setcol();
+                        indclr++;
+                        if(indclr==figi.size())
+                        {
+                            indclr=0;
+                        };
+                        setcolor(RED);
+                        figi.at(indclr)->rysuj();
+                        setcolor(WHITE);
+                    }
+                    else if(potwrd=='s')
+                    {
+                        figi.at(indclr)->rysuj();
+                        indclr--;
+                        if(indclr==-1)
+                        {
+                            indclr=figi.size()-1;
+                        };
+                        setcolor(RED);
+                        figi.at(indclr)->rysuj();
+                        setcolor(WHITE);
+                    }
+                    else if(potwrd=='q')
+                    {
+                        rysall();
+                        break;
+                    }
+                    else
+                    {
+                        cout<< "takij ni ma" << endl;
+                        figi.at(indclr)->rysuj();
+                    }
+
+                }
+                while(potwrd!='y');
+                break;
+
+            case 5:
+                pokaz();
+                break;
+
+
+            }
+        }
+        while(wb!=0);
+    }
 };
+
 int main()
 {
     int GraphDriver = DETECT;
@@ -122,17 +495,26 @@ int main()
         printf("Blad trybu graficznego: %s\n", grapherrormsg(ErrorCode) );
         exit(1);
     }
-    //Tutaj kod związany z rysowaniem
-    //******************************************************************************************************************
+//Tutaj kod zwiazany z rysowaniem
+//******************************************************************************************************************
     srand(time(0));
     TabFigur ma;
     int gwb=0;
-    do{
+    do
+    {
+        int jk=0;
+        cout << "0 wyjdz\n1 dodaj figra\n2 edytuj(usuwanie translacja rozmiar kolor)\n3 pokaz wszystkie elementy" << endl;
         scanf("%d",&gwb);
-        switch(gwb){
+        switch(gwb)
+        {
+        case 0:
+            return 1;
+            break;
         case 1:
-            printf("1 kwadrat \n2 elibse\n3 kolo\n");
-            ma.addfig();
+            printf("1 kwadrat \n2 elibse\n3 kolo\n4 rand\n");
+
+            cin >> jk;
+            ma.addfig(jk);
             break;         //daj figura
         case 2:
             ma.edycja();
@@ -140,9 +522,10 @@ int main()
         case 3:
             ma.pokaz();
             break;         //info o figach
-        }
-    }while(gwb!=0);
 
+        }
+    }
+    while(gwb!=0);
 
     //******************************************************************************************************************
     //koniec rysowania
